@@ -3,13 +3,13 @@ import { User } from "../../../types/users.types";
 import { userDTO } from "../../../helpers/user-dto";
 import { LocalStorageService } from "../../../../core/services/local-storage.service";
 
+let uniqId = 100;
+
 @Injectable({
     providedIn: "root",
 })
 export class UsersService {
     public users: User[] = this.getUsersFromLocalStorage();
-
-    private uniqId = 100;
 
     constructor(private readonly localStorageService: LocalStorageService) {}
 
@@ -37,7 +37,7 @@ export class UsersService {
 
     private addUser(formValues: any) {
         const newUser: User = {
-            id: this.uniqId++,
+            id: uniqId++,
             name: formValues.name,
             email: formValues.email,
             phone: formValues.phone,
