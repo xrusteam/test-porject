@@ -6,7 +6,8 @@ import { UsersApiService } from "../../services/users-api.service";
 import { UsersService } from "../../services/users.service";
 import { User } from "../../../../types/users.types";
 import { MatDialog } from "@angular/material/dialog";
-import { DialogData, DialogFormComponent } from "../../../../shared/dialog-form/dialog-form.component";
+import { DialogFormComponent } from "../../../../../shared/dialog-form/dialog-form.component";
+import { LocalStorageService } from "../../../../../core/services/local-storage.service";
 
 @Component({
     selector: "app-users",
@@ -20,38 +21,47 @@ export class UsersComponent implements OnInit, OnDestroy {
     constructor(
         private readonly usersApiService: UsersApiService,
         private readonly usersService: UsersService,
+        private readonly localStorageService: LocalStorageService,
         private readonly dialog: MatDialog
     ) {}
 
     public ngOnInit(): void {
-        this.subscription$ = this.usersApiService.getUsers().subscribe((users) => {
-            this.usersService.users = users;
-            this.users = this.usersService.users;
-        });
+        if (this.usersService.users.length === 0) {
+            this.subscription$ = this.usersApiService.getUsers().subscribe((users) => {
+                this.usersService.users = users;
+                this.localStorageService.setUsersToStorage(users);
+                this.users = this.usersService.users;
+            });
+        }
     }
 
     public ngOnDestroy(): void {
         this.subscription$.unsubscribe();
     }
 
-    public trackByFn() {}
-
     public onDelete(id: number): void {
         this.usersService.deleteUser(id);
-        this.users = this.usersService.users;
+        this.users = this.getUsers();
     }
 
-    openDialog(): void {
-        const dialogRef = this.dialog.open<DialogFormComponent, DialogData>(DialogFormComponent, {
+    public trackByFn(index: number, item: User): number {
+        return item.id;
+    }
+
+    public openDialog(user?: User): void {
+        const dialogRef = this.dialog.open<DialogFormComponent>(DialogFormComponent, {
             width: "250px",
             data: {
-                title: "cdc",
-                content: "dcfd",
+                user,
             },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            console.log(`Dialog result: ${result}`);
+        dialogRef.afterClosed().subscribe((_) => {
+            this.users = this.getUsers();
         });
+    }
+
+    private getUsers(): User[] {
+        return this.usersService.users;
     }
 }

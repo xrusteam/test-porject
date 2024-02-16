@@ -8,7 +8,7 @@ import { AppComponent } from "./app.component";
 import { UsersComponent } from "./features/users/components/users/users.component";
 import { UserCardComponent } from "./features/users/components/user-card/user-card.component";
 import { HomeComponent } from "./features/home/home.component";
-import { DialogFormModule } from "./shared/dialog-form/dialog-form.module";
+import { DialogFormModule } from "../shared/dialog-form/dialog-form.module";
 
 @NgModule({
     declarations: [AppComponent, UsersComponent, UserCardComponent, HomeComponent],
