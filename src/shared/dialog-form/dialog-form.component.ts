@@ -3,6 +3,9 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { UsersService } from "../../app/features/users/services/users.service";
 import { User } from "../../app/types/users.types";
+import { Store } from "@ngrx/store";
+import { saveUser } from "../../app/state/users/users.actions";
+import { userDTO } from "../../app/helpers/user-dto";
 
 @Component({
     selector: "app-dialog-form",
@@ -16,6 +19,7 @@ export class DialogFormComponent implements OnInit {
     constructor(
         private readonly usersService: UsersService,
         private readonly dialogRef: MatDialogRef<DialogFormComponent>,
+        private readonly store: Store,
         private readonly formBuilder: FormBuilder,
         @Inject(MAT_DIALOG_DATA) private data: { user: User }
     ) {}
@@ -28,8 +32,15 @@ export class DialogFormComponent implements OnInit {
 
     public onSubmit(): void {
         const formData = this.userFormGroup.value;
+        const editedUser = {
+            id: formData.id,
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            ...userDTO,
+        };
 
-        this.usersService.saveUser(formData);
+        this.store.dispatch(saveUser({ user: editedUser }));
         this.onClose();
     }
 

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { User } from "../../../types/users.types";
 import { userDTO } from "../../../helpers/user-dto";
 import { LocalStorageService } from "../../../../core/services/local-storage.service";
+import { Observable, of } from "rxjs";
 
 let uniqId = 100;
 
@@ -9,30 +10,22 @@ let uniqId = 100;
     providedIn: "root",
 })
 export class UsersService {
-    public users: User[] = this.getUsersFromLocalStorage();
-
     constructor(private readonly localStorageService: LocalStorageService) {}
 
-    public deleteUser(id: number): void {
-        this.users = this.users.filter((user) => user.id !== id);
-        this.localStorageService.setUsersToStorage(this.users);
+    public deleteUser(id: number): Observable<number> {
+        return of(id);
     }
 
-    public saveUser(formValues: any): void {
+    public saveUser(formValues: any): Observable<User> {
         if (this.isNewUser(formValues.id)) {
-            this.addUser(formValues);
+            return this.addUser(formValues);
         } else {
-            this.updateUser(formValues);
+            return this.updateUser(formValues);
         }
-        this.localStorageService.setUsersToStorage(this.users);
     }
 
-    private updateUser(formValues: any): void {
-        this.users = this.users.map((user) =>
-            user.id === formValues.id
-                ? { ...user, name: formValues.name, phone: formValues.phone, email: formValues.email }
-                : { ...user }
-        );
+    private updateUser(editedUser: User): Observable<User> {
+        return of(editedUser);
     }
 
     private addUser(formValues: any) {
@@ -43,8 +36,7 @@ export class UsersService {
             phone: formValues.phone,
             ...userDTO,
         };
-
-        this.users = [...this.users, newUser];
+        return of(newUser);
     }
 
     private isNewUser(id: number): boolean {
